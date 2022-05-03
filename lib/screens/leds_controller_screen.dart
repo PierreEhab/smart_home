@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:smart_home/widgets/rounded_inkwell.dart';
 
+import '../providers/bluetooth_provider.dart';
 import '../widgets/light_bulb.dart';
+import 'package:provider/provider.dart';
 
 class LedControllerScreen extends StatelessWidget {
   const LedControllerScreen({Key? key}) : super(key: key);
@@ -20,13 +22,19 @@ class LedControllerScreen extends StatelessWidget {
           RoundedInkwell(
             child: const LightBulb(),
             text: "Turn On",
-            onTap: () {},
+            onTap: () {
+              Provider.of<BluetoothProvider>(context, listen: false)
+              .sendOnMessageToBluetooth();
+            },
             color: Colors.green,
           ),
           RoundedInkwell(
             child: const LightBulb(),
             text: "Turn Off",
-            onTap: () {},
+            onTap: () {
+              Provider.of<BluetoothProvider>(context, listen: false)
+                  .sendOnMessageToBluetooth();
+            },
             color: Colors.red,
           ),
         ],
