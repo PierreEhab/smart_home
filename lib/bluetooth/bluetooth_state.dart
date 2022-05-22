@@ -1,9 +1,5 @@
-import 'dart:convert';
-import 'dart:typed_data';
-import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:smart_home/providers/bluetooth_provider.dart';
-import 'bluetooth_helper_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_home/screens/home_screen.dart';
 import 'package:provider/provider.dart';
@@ -54,7 +50,6 @@ class _BluetoothAppState extends State<BluetoothApp> {
     // as the app starts up
     Provider.of<BluetoothProvider>(context, listen: false)
         .enableBluetooth();
-
     // Listen for further state changes
     FlutterBluetoothSerial.instance
         .onStateChanged()
@@ -68,6 +63,8 @@ class _BluetoothAppState extends State<BluetoothApp> {
             .getPairedDevices();
       });
     });
+
+
   }
 
   @override
@@ -81,7 +78,6 @@ class _BluetoothAppState extends State<BluetoothApp> {
       Provider.of<BluetoothProvider>(context, listen: false)
           .connection = null;
     }
-
     super.dispose();
   }
 
@@ -173,7 +169,7 @@ class _BluetoothAppState extends State<BluetoothApp> {
         .connect();
                     }
                   }
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>HomeScreen()));
                 },
 
                 child:

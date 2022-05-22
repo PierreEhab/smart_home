@@ -1,8 +1,8 @@
 import 'dart:typed_data';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+
 
 class BluetoothProvider extends ChangeNotifier{
   // Initializing the Bluetooth connection state to be unknown
@@ -29,6 +29,9 @@ class BluetoothProvider extends ChangeNotifier{
 
   bool isButtonUnavailable = false;
   BluetoothDevice? device;
+
+  int? heartRateReading;
+  String message = '';
 
   Future<void> enableBluetooth() async {
     // Retrieving the current Bluetooth state
@@ -59,28 +62,18 @@ class BluetoothProvider extends ChangeNotifier{
       devicesList = devices;
   }
 
+  int wrongPasswordCount = 0;
 
-  void sendOnMessageToBluetooth() async {
-    String message = "1\r\n";
+
+
+  void sendMessageToBluetooth(int num) async {
+    String message = num.toString() + "\r\n";
     List<int> list = message.codeUnits;
     Uint8List bytes = Uint8List.fromList(list);
     connection!.output.add(bytes);
     await connection!.output.allSent;
     // show('Device Turned On');
     deviceState = 1; // device on
-  }
-
-// Method to send message
-// for turning the Bluetooth device off
-  void sendOffMessageToBluetooth() async {
-    String message = "0\r\n";
-    List<int> list = message.codeUnits;
-    Uint8List bytes = Uint8List.fromList(list);
-    connection!.output.add(bytes);
-    await connection!.output.allSent;
-    print("turned off");
-    // show('Device Turned Off');
-    deviceState = -1; // device off
   }
 
 
@@ -96,7 +89,7 @@ class BluetoothProvider extends ChangeNotifier{
         await BluetoothConnection.toAddress(device!.address)
             .then((connection) {
           print('Connected to the device');
-          connection = connection;
+          this.connection = connection;
 
           // Updating the device connectivity
           // status to [true]
@@ -107,13 +100,15 @@ class BluetoothProvider extends ChangeNotifier{
           // defined before.
           // Whenever we make a disconnection call, this [onDone]
           // method is fired.
-          connection!.input!.listen(null).onDone(() {
+
+          connection!.input!.listen((data) {
+            heartRateReading = (data[0] * 2)+20;
+            notifyListeners();
             if (isDisconnecting) {
               print('Disconnecting locally!');
             } else {
               print('Disconnected remotely!');
-            }
-          });
+            }          });
         }).catchError((error) {
           print('Cannot connect, exception occurred');
           print(error);
@@ -122,7 +117,6 @@ class BluetoothProvider extends ChangeNotifier{
       }
     }
   }
-
   void disconnect() async {
     // Closing the Bluetooth connection
     await connection!.close();
