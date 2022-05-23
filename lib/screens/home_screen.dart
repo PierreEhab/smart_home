@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_home/screens/door_controller_screen.dart';
 import 'package:smart_home/screens/leds_controller_screen.dart';
 import 'package:smart_home/screens/monitor_heart_rate.dart';
+import 'package:smart_home/screens/voice_commands_screen.dart';
 import 'package:smart_home/widgets/door.dart';
 import 'package:smart_home/widgets/light_bulb.dart';
 import 'package:smart_home/widgets/my_home_scaffold.dart';
@@ -76,6 +77,22 @@ class HomeScreen extends StatelessWidget {
                     color: Colors.white,
                   ),
                   text: "Monitor Heart Rate",
+                ),
+                RoundedInkwell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const VoiceCommandsScreen(),
+                      ),
+                    );
+                  },
+                  child: Icon(
+                    Icons.mic,
+                    size: MediaQuery.of(context).size.width * 0.1,
+                    color: Colors.white,
+                  ),
+                  text: "Voice Commands",
                 ),
               ],
             ),
