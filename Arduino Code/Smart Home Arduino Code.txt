@@ -1,0 +1,158 @@
+#include <PulseSensorPlayground.h>
+#include <SoftwareSerial.h>
+#include <LiquidCrystal.h>
+#include <Servo.h>
+
+#define USE_ARDUINO_INTERRUPTS true    
+// Define the servo pin:
+#define servoPin 12
+// Create LCD Object
+LiquidCrystal LCD(7,6,8,9,10,11); //(rs, enable, d4, d5, d6, d7) 
+
+//////////////////////////////////////////////Servo Motor///////////////////////////////////////////////////////
+// Create a new servo object:
+Servo myservo;
+
+// Create a variable to store the servo position:
+int angle = 0;
+int pos = 0;    // variable to store the servo position
+
+//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Servo Motor\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+int ledPin = 4;
+int cmd = -1;
+int flag = 0;
+////////////////////////////////////////////////Bluetooth HC05////////////////////////////////////////////////
+#define TxD 2
+#define RxD 3
+SoftwareSerial bluetoothSerial(TxD, RxD);
+char c;
+//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Bluetooth HC05\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+////////////////////////////////////////////////PULSE SENSOR///////////////////////////////////////////////////
+//Pulse Sensor Variables.
+const int PulseWire = A5; // PulseSensor PURPLE WIRE connected to ANALOG PIN A5
+const int LED13 = 13; // The on-board Arduino LED, close to PIN 13.
+int Threshold = 1000; // Determine which Signal to "count as a beat" and which to ignore.
+PulseSensorPlayground pulseSensor; // Creates an instance of the PulseSensorPlayground object called "pulseSensor"
+int Signal;
+//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\PULSE SENSOR\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ 
+
+
+void setup() {
+  bluetoothSerial.begin(9600);
+  Serial.begin(9600);
+  pinMode(ledPin, OUTPUT);
+  digitalWrite(ledPin, LOW);
+  Serial.begin(9600);
+  LCD.begin(16,2);
+  LCD.print("Hello");
+  //////////////////////////////////////////////Servo Motor///////////////////////////////////////////////////////
+//  Attach the Servo variable to a pin:
+  myservo.attach(servoPin);
+  myservo.write(0);
+  //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\Servo Motor\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+  ////////////////////////////////////////////////PULSE SENSOR///////////////////////////////////////////////////
+  // Configure the PulseSensor object, by assigning our variables to it.
+  pulseSensor.analogInput(PulseWire);
+  pulseSensor.blinkOnPulse(LED13); //auto-magically blink Arduino's LED with heartbeat.
+  pulseSensor.setThreshold(Threshold);
+  //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\PULSE SENSOR\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ 
+
+
+}
+
+void loop() {
+  // take input from serial screen and send it with bluetooth
+    if (Serial.available()) {
+    bluetoothSerial.write(Serial.read());
+    }
+                  if(bluetoothSerial.available()){
+              c = bluetoothSerial.read();
+              Serial.println(c);
+              flag = 1;
+          }
+    
+  if (flag == 1) {
+    // light the led on
+    if (c == '0') {
+      bluetoothSerial.write("Hello from hc05");
+      digitalWrite(ledPin, LOW);
+      Serial.println("LED: off");
+    }
+    // light the led off
+    else if (c == '1') {
+      digitalWrite(ledPin, HIGH);
+      Serial.println("LED: on");
+     }
+     // read the temprature and display it on the lcd
+     else if (c == '2') {
+      LCD.clear();
+      int sensorValue = analogRead(A0); 
+      float mv = ( sensorValue/1024.0)*5000;
+      float tempInCel = mv/10;
+      Serial.println(sensorValue);
+      LCD.print("Temp is: ");
+      LCD.print(tempInCel);
+      LCD.print(sensorValue);
+    }
+    // open the door
+     else if (c == '3') {
+      LCD.clear();
+       // Tell the servo to go to a particular angle:
+       myservo.write(70);
+       LCD.print("Right Password");
+       Serial.println("Right Password");
+       LCD.setCursor(0,1);
+       LCD.print("Opening Door");
+    }
+    // print wrong password on the screen
+     else if (c == '4') {
+          LCD.clear();
+          LCD.print("Wrong Password");
+          Serial.println("Wrong Password");
+    }
+        // print wrong password and wait for 3 secs on the screen
+      else if (c == '5') {
+        LCD.clear();
+        LCD.print("Wrong Password");
+        Serial.println("Wrong Password");
+        LCD.setCursor(0,1);
+        LCD.print("Wait For 3 Secs");
+        delay(3);
+    }
+    // close the door
+      else if (c == '6') {
+        LCD.clear();
+        LCD.print("Closing Door");
+       // Tell the servo to go to a particular angle:
+       myservo.write(0);
+    }
+        else if (c == '7') {
+        
+          while(c != '8'){
+              Serial.println(7);
+              if(bluetoothSerial.available()){
+              c = bluetoothSerial.read();
+              Serial.println(c);
+          }
+          Signal = analogRead(PulseWire); // Read the sensor value          
+          bluetoothSerial.write(Signal/10);
+          delay(3000);
+          }
+    }
+//    else {
+//      Serial.print("unknown command: ");
+//      Serial.write(cmd);
+//      Serial.print(" (");
+//      Serial.print(cmd, DEC);
+//      Serial.print(")");
+//
+//      Serial.println();
+//    }
+
+    flag = 0;    
+    cmd = 65;
+    Serial.flush();
+    delay(100);
+  }
+}

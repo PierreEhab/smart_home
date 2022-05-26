@@ -37,7 +37,7 @@ class _VoiceCommandsScreenState extends State<VoiceCommandsScreen> {
           SizedBox(height: 200,),
           const Center(
             child: Text(
-              "Available Commands:\n- turn the lights on\n- turn the lights off\n- open the door\n- close the door\n- what is the temperature",
+              "* Available Commands:\n\n  - turn the lights on\n  - turn the lights off\n  - open the door\n  - close the door\n  - what is the temperature\n\n* If you're a Potter Head your spells will work here ;)",
             ),
           ),
         ]),
@@ -56,24 +56,28 @@ class _VoiceCommandsScreenState extends State<VoiceCommandsScreen> {
 
   Future toggleRecording() => SpeechApi.toggleRecording(
         onResult: (text) => setState(() {
+          if(text.toLowerCase() == "knox" || text.toLowerCase()== "knocks"){
+            text = "Nox"  ;
+            print(text);
+          }
           this.text = text;
-          if (text == "turn the lights on") {
+          if (text.toLowerCase() == "turn the lights on" || text.toLowerCase() == "lumos" || text.toLowerCase() == "lumos maxima") {
             print("lights on");
             Provider.of<BluetoothProvider>(context, listen: false)
                 .sendMessageToBluetooth(1);
-          } else if (text == "turn the lights off") {
+          } else if (text.toLowerCase() == "turn the lights off" || text.toLowerCase() == "nox") {
             print("lights off");
             Provider.of<BluetoothProvider>(context, listen: false)
                 .sendMessageToBluetooth(0);
-          } else if (text == "open the door") {
+          } else if (text.toLowerCase() == "open the door" || text.toLowerCase() == "alohomora") {
             print("door opened");
             Provider.of<BluetoothProvider>(context, listen: false)
                 .sendMessageToBluetooth(3);
-          } else if (text == "close the door") {
+          } else if (text.toLowerCase() == "close the door") {
             print("door closed");
             Provider.of<BluetoothProvider>(context, listen: false)
                 .sendMessageToBluetooth(6);
-          } else if (text == "what is the temperature") {
+          } else if (text.toLowerCase() == "what is the temperature") {
             Provider.of<BluetoothProvider>(context, listen: false)
                 .sendMessageToBluetooth(2);
           }

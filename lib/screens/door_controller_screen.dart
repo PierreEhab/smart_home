@@ -16,27 +16,29 @@ class DoorControllerScreen extends StatelessWidget {
         centerTitle: true,
       ),
       body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              RoundedInkwell(
-                child: const Door(),
-                text: "Open The Door",
-                onTap: () {
-                  showDialog(context: context, builder: (context)=>PasswordPopUp());
-                },
-                color: Colors.green,
-              ),
-              RoundedInkwell(
-                child: const Door(),
-                text: "Close The Door",
-                onTap: () {
-                  Provider.of<BluetoothProvider>(context, listen: false)
-                      .sendMessageToBluetooth(6);
-                },
-                color: Colors.red,
-              ),
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                RoundedInkwell(
+                  child: const Door(),
+                  text: "Open The Door",
+                  onTap: () {
+                    showDialog(context: context, builder: (context)=>PasswordPopUp());
+                  },
+                  color: Colors.green,
+                ),
+                RoundedInkwell(
+                  child: const Door(),
+                  text: "Close The Door",
+                  onTap: () {
+                    Provider.of<BluetoothProvider>(context, listen: false)
+                        .sendMessageToBluetooth(6);
+                  },
+                  color: Colors.red,
+                ),
+              ],
+            ),
           )),
     );
   }
